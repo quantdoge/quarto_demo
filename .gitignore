@@ -1,0 +1,15 @@
+# Generated dashboard output (regenerate with generate_dashboard.py)
+/site/
+
+# Sample data (regenerate with make_sample_data.py)
+/sample_project/
+
+# Quarto
+/.quarto/
+*_files/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
