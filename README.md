@@ -8,6 +8,13 @@ explore that model's description, performance, SHAP explanations and an AI
 summary — all from a single HTML file with **no server and no internet
 required** (Plotly.js and the data are inlined at build time).
 
+It ships in **two front-ends that share the same data parser**:
+
+| Front-end | File | Best for |
+| --- | --- | --- |
+| **Quarto static site** | `generate_dashboard.py` → `slice_dashboard.html` | shipping a single offline HTML file |
+| **Streamlit app** | `streamlit_app.py` | interactive exploration / live demos |
+
 > **Live demo:** open [`docs/index.html`](docs/index.html) in a browser
 > (built from the bundled sample data).
 
@@ -74,6 +81,21 @@ Point it at your real project instead:
 ```bash
 python generate_dashboard.py --base-dir "/path/to/your/project" --output-dir site
 ```
+
+### Run the Streamlit app
+
+Same data, same look, but fully interactive (no rebuild on every change):
+
+```bash
+pip install -r requirements.txt
+python make_sample_data.py --base-dir sample_project   # optional demo data
+streamlit run streamlit_app.py
+```
+
+Then set the **Project base directory** in the sidebar (defaults to
+`sample_project`) and toggle the response variable / product scope. The app
+calls the same `build_bundle()` parser as the Quarto generator, so both
+front-ends always reflect the same data and logic.
 
 ### Options
 
