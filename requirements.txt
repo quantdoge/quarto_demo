@@ -1,0 +1,6 @@
+# Python dependencies for the SLICE Quarto dashboard generator.
+pandas>=2.0
+pyyaml>=6.0
+openpyxl>=3.1     # read the data dictionary .xlsx
+plotly>=5.18      # its JS is inlined into the page (no CDN needed)
+numpy>=1.24       # only required by make_sample_data.py
