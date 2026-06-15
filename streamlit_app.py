@@ -291,7 +291,9 @@ def fig_imp(m: dict, labels: bool) -> go.Figure:
 
 def fig_bee(m: dict, colour: bool) -> go.Figure:
     raw = m.get("shap_values", [])
-    order = [r["feature_name"] for r in m.get("shap_importance", [])]
+    # only chart features that actually have points loaded (the top-N selection)
+    present = {r["feature_name"] for r in raw}
+    order = [r["feature_name"] for r in m.get("shap_importance", []) if r["feature_name"] in present]
     idx = {f: i for i, f in enumerate(order)}
     rng = {}
     for r in raw:
@@ -341,6 +343,9 @@ def fig_bee(m: dict, colour: bool) -> go.Figure:
 st.sidebar.markdown("## Model selection")
 base_dir = st.sidebar.text_input("Project base directory", value=DEFAULT_BASE,
                                   help="Folder containing Scripts/, Reports/, Data Dictionary/")
+n_features = st.sidebar.slider(
+    "Beeswarm features", min_value=5, max_value=30, value=12,
+    help="How many top features (by mean |SHAP|) to display in the beeswarm.")
 
 if not Path(base_dir).exists():
     st.markdown(
@@ -352,7 +357,7 @@ if not Path(base_dir).exists():
         "```\npython make_sample_data.py --base-dir sample_project\n```")
     st.stop()
 
-bundle = load_bundle(base_dir, top_n=12, max_inst=300)
+bundle = load_bundle(base_dir, top_n=n_features, max_inst=300)
 app = bundle["app"]
 horizons = bundle["options"]["horizons"]
 scopes = bundle["options"]["scopes"]
@@ -429,12 +434,12 @@ with tab_perf:
         st.markdown("<div class='slice-cardh'>Precision–Recall</div>", unsafe_allow_html=True)
         pr_view = st.radio("view", ["PR curve", "vs threshold"], horizontal=True,
                            label_visibility="collapsed", key="pr_view")
-        st.plotly_chart(fig_pr(m, pr_view), use_container_width=True,
+        st.plotly_chart(fig_pr(m, pr_view), width="stretch",
                         config={"displayModeBar": False})
     with c4.container(border=True):
         st.markdown("<div class='slice-cardh'>SHAP Feature Importance</div>", unsafe_allow_html=True)
         imp_labels = st.checkbox("Show values", value=True, key="imp_labels")
-        st.plotly_chart(fig_imp(m, imp_labels), use_container_width=True,
+        st.plotly_chart(fig_imp(m, imp_labels), width="stretch",
                         config={"displayModeBar": False})
 
 with tab_shap:
@@ -443,7 +448,7 @@ with tab_shap:
             "<div class='slice-cardh'>SHAP Beeswarm — feature value vs impact on model output</div>",
             unsafe_allow_html=True)
         bee_colour = st.checkbox("Colour by feature value", value=True, key="bee_colour")
-        st.plotly_chart(fig_bee(m, bee_colour), use_container_width=True,
+        st.plotly_chart(fig_bee(m, bee_colour), width="stretch",
                         config={"displayModeBar": False})
 
 with tab_ai:
