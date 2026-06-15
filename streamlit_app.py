@@ -41,7 +41,17 @@ st.set_page_config(
 
 CSS = """
 <style>
-#MainMenu, header[data-testid="stHeader"], footer { visibility: hidden; }
+/* Hide the toolbar's action chrome (Deploy / menu / status) and footer, but
+   KEEP the toolbar+header so the sidebar expand (»») button — which lives
+   inside the toolbar — stays clickable after the sidebar is collapsed. */
+[data-testid="stToolbarActions"], [data-testid="stAppDeployButton"],
+[data-testid="stMainMenu"], #MainMenu, [data-testid="stStatusWidget"],
+footer { display: none !important; }
+header[data-testid="stHeader"] { background: transparent; }
+/* keep the "expand sidebar" (»») button visible & on top once collapsed */
+[data-testid="stExpandSidebarButton"] {
+  visibility: visible !important; opacity: 1 !important; z-index: 1000;
+}
 .block-container { padding-top: 1rem; padding-bottom: 2rem; max-width: 100%; }
 
 .slice-header {
