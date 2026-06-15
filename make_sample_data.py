@@ -97,7 +97,7 @@ def _write_yaml(path: Path, spec: ModelSpec) -> None:
         else:
             lines.append(f"  {k}: {v}")
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines) + "\n")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def _features_for(spec: ModelSpec) -> list[str]:
@@ -291,7 +291,7 @@ def _write_ai(path: Path, spec: ModelSpec, top_feats: list[str]) -> None:
         },
     }
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2))
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
 def _write_data_dictionary(path: Path) -> None:

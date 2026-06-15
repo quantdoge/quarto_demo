@@ -153,7 +153,7 @@ def load_yaml_config(base: Path, spec: ModelSpec, ddict: Dict[str, str]) -> Dict
         return out
 
     try:
-        cfg = yaml.safe_load(path.read_text()) or {}
+        cfg = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     except Exception as exc:  # noqa: BLE001
         _warn(f"could not parse yaml ({path}): {exc}")
         return cfg_fallback(out)
@@ -352,7 +352,7 @@ def load_ai_json(base: Path, spec: ModelSpec) -> Dict[str, Any]:
         _warn(f"AI explain json not found: {path}")
         return {}
     try:
-        data = json.loads(path.read_text())
+        data = json.loads(path.read_text(encoding="utf-8"))
     except Exception as exc:  # noqa: BLE001
         _warn(f"could not parse AI json ({path}): {exc}")
         return {}
@@ -427,12 +427,13 @@ def write_assets(out_dir: Path, bundle: dict) -> None:
     """
     from plotly.offline import get_plotlyjs
 
-    (out_dir / "slice_dashboard.qmd").write_text(QMD_TEMPLATE)
-    (out_dir / "slice_theme.css").write_text(CSS_THEME)
+    (out_dir / "slice_dashboard.qmd").write_text(QMD_TEMPLATE, encoding="utf-8")
+    (out_dir / "slice_theme.css").write_text(CSS_THEME, encoding="utf-8")
 
     plotly_js = get_plotlyjs()
     (out_dir / "_plotly.html").write_text(
-        "<script type=\"text/javascript\">\n" + plotly_js + "\n</script>\n"
+        "<script type=\"text/javascript\">\n" + plotly_js + "\n</script>\n",
+        encoding="utf-8",
     )
 
     data_js = json.dumps(bundle, separators=(",", ":"))
@@ -443,7 +444,7 @@ def write_assets(out_dir: Path, bundle: dict) -> None:
         + APP_JS
         + "\n</script>\n"
     )
-    (out_dir / "_app.html").write_text(app)
+    (out_dir / "_app.html").write_text(app, encoding="utf-8")
 
 
 # --- Quarto source ----------------------------------------------------------
@@ -946,6 +947,8 @@ def render_with_quarto(out_dir: Path, quarto_bin: str) -> bool:
             cwd=str(out_dir),
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
     except FileNotFoundError:
         _warn(f"quarto not found ('{quarto_bin}'); wrote sources only. "
@@ -994,7 +997,9 @@ def main() -> int:
 
     # Optional: also drop the raw bundle next to the sources for debugging.
     if args.write_bundle:
-        (out_dir / "slice_data.json").write_text(json.dumps(bundle, indent=2))
+        (out_dir / "slice_data.json").write_text(
+            json.dumps(bundle, indent=2), encoding="utf-8"
+        )
         _info(f"wrote bundle: {out_dir / 'slice_data.json'}")
 
     write_assets(out_dir, bundle)
